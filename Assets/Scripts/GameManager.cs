@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
 {
     //enum to track state of the game.
-    enum GameState
+    public enum GameState
     {
         paused,
         gamePlay
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
 
             //Showing cursor
             Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            Cursor.visible = false;
         }
         else
         {
@@ -78,5 +78,18 @@ public class GameManager : MonoBehaviour
     public void Quit()
     {
         Application.Quit();
+    }
+
+    //Accessor functions
+
+    public bool isGamePaused(){
+        if(gameState == GameState.paused)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

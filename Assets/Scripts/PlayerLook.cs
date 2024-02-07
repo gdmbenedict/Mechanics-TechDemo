@@ -17,10 +17,14 @@ public class PlayerLook : MonoBehaviour
     [SerializeField] private float xRotation; //rotation about the x axis (up - down
     [SerializeField] private float yRotation; //rotation about the y axis (right - left)
 
+    [Header("References")]
+    [SerializeField] private GameManager gameManager;
+
     //Method called on first frame
-    private void Start()
+    private void Awake()
     {
-        
+        //called on first frame regardless of script being enabled
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     //Method called every frame
@@ -45,10 +49,14 @@ public class PlayerLook : MonoBehaviour
 
     private void MoveCamera()
     {
-        //rotates camera 
-        cam.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
-        
-        //rotates player
-        transform.rotation = Quaternion.Euler(0, yRotation, 0);
+
+        if (!gameManager.isGamePaused())
+        {
+            //rotates camera 
+            cam.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+
+            //rotates player
+            transform.rotation = Quaternion.Euler(0, yRotation, 0);
+        }
     }
 }

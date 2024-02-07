@@ -28,6 +28,16 @@ public class PlayerMovement: MonoBehaviour
     [Header("Checks")]
     [SerializeField] private bool isGrounded;
 
+    [Header("References")]
+    [SerializeField] private GameManager gameManager;
+
+    //called on first frame regardless of script being enabled
+    private void Awake()
+    {
+        //getting game manager from the scene
+        gameManager = FindObjectOfType<GameManager>();   
+    }
+
     /*
      * Update function that is called every frame
      */
@@ -62,7 +72,7 @@ public class PlayerMovement: MonoBehaviour
 
     void OnJump(InputValue value)
     {
-        if (isGrounded)
+        if (isGrounded && !gameManager.isGamePaused())
         {
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
