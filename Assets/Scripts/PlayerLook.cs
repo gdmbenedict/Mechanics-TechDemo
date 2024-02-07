@@ -20,9 +20,7 @@ public class PlayerLook : MonoBehaviour
     //Method called on first frame
     private void Start()
     {
-        //hiding cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        
     }
 
     //Method called every frame
