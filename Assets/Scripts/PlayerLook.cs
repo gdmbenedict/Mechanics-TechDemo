@@ -35,9 +35,9 @@ public class PlayerLook : MonoBehaviour
 
     //Input Handling
 
-    void OnLook(InputValue lookValue)
+    public void OnLook(InputAction.CallbackContext lookValue)
     {
-        camMovement = lookValue.Get<Vector2>();
+        camMovement = lookValue.ReadValue<Vector2>();
 
         yRotation += camMovement.x * SensX * camMult;
         xRotation -= camMovement.y * SensY * camMult;

@@ -61,16 +61,16 @@ public class PlayerMovement: MonoBehaviour
     /// This function is called on "Move" input in the "PlayerControls" Input Action. It updates the values of the Vector3 moveDirection
     /// </summary>
     /// <param name="movementValue">InputValue of the "Move" input action (extracted as Vector2)</param>
-    void OnMove(InputValue movementValue)
+    public void Move(InputAction.CallbackContext movementValue)
     {
-        Vector2 movementVector = movementValue.Get<Vector2>();
+        Vector2 movementVector = movementValue.ReadValue<Vector2>();
         //Debug.Log(movementVector);
 
         //transform.forward and transform.right modify the value to update with camera movement
         moveDirection = transform.forward * movementVector.y + transform.right * movementVector.x;
     }
 
-    void OnJump(InputValue value)
+    public void Jump(InputAction.CallbackContext context)
     {
         if (isGrounded && !gameManager.isGamePaused())
         {

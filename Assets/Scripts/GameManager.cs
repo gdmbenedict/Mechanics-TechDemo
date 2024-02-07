@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,8 +39,9 @@ public class GameManager : MonoBehaviour
 
     //Input Handling
 
-    void OnEscape()
+    public void OnEscape(InputAction.CallbackContext context)
     {
+        Debug.Log("function called");
         Pause();
     }
 
