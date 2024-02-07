@@ -7,15 +7,26 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement: MonoBehaviour
 {
+    [Header("Player Variables")]
+    [SerializeField] float playerHeight = 2f;
+
     [Header("Movement Variables")]
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float moveMult = 10f;
+    [SerializeField] private float airMoveMult = 0.5f;
 
     [SerializeField] private Vector3 moveDirection;
 
+    [Header("Jumping")]
+    [SerializeField] private float jumpForce = 10f;
+
     [Header("Physics")]
     [SerializeField] private Rigidbody rb;
-    [SerializeField] private float drag = 6f;
+    [SerializeField] private float groundDrag = 6f;
+    [SerializeField] private float airDrag = 0f;
+
+    [Header("Checks")]
+    [SerializeField] private bool isGrounded;
 
     /*
      * Update function that is called every frame
@@ -23,6 +34,7 @@ public class PlayerMovement: MonoBehaviour
     private void Update()
     {
         ControlDrag();
+        GroundCheck();
     }
 
     /*
@@ -48,18 +60,50 @@ public class PlayerMovement: MonoBehaviour
         moveDirection = transform.forward * movementVector.y + transform.right * movementVector.x;
     }
 
+    void OnJump(InputValue value)
+    {
+        if (isGrounded)
+        {
+            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        }
+    }
+
     //Functionality Methods
 
+    /// <summary>
+    /// Method that changes the acceleration of the player to move
+    /// </summary>
     private void MovePlayer()
     {
-        rb.AddForce(moveDirection * moveSpeed * moveMult, ForceMode.Acceleration);
+        if (isGrounded)
+        {
+            rb.AddForce(moveDirection * moveSpeed * moveMult, ForceMode.Acceleration);
+        }
+        else
+        {
+            rb.AddForce(moveDirection * moveSpeed * moveMult * airMoveMult, ForceMode.Acceleration);
+        }
+        
         //Debug.Log(rb.velocity);
     }
 
     private void ControlDrag()
     {
-        rb.drag = drag;
+        if (isGrounded)
+        {
+            rb.drag = groundDrag;
+        }
+        else
+        {
+            rb.drag = airDrag;
+        }
     }
-
+    /// <summary>
+    /// Method that checks if the player is  touching (or near enough) to the ground
+    /// </summary>
+    private void GroundCheck()
+    {
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight / 2 + 0.01f);
+    }
     
 }

@@ -562,11 +562,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ccd3e5bc81e013419bd841912ea301a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerHeight: 2
   moveSpeed: 6
   moveMult: 10
+  airMoveMult: 0.15
   moveDirection: {x: 0, y: 0, z: 0}
+  jumpForce: 6
   rb: {fileID: 365198534}
-  drag: 6
+  groundDrag: 6
+  airDrag: 1
+  isGrounded: 0
 --- !u!114 &365198537
 MonoBehaviour:
   m_ObjectHideFlags: 0
