@@ -9,10 +9,10 @@ public class PlayerLook : MonoBehaviour
     [SerializeField] private Transform camHolder;
     [SerializeField] private Vector2 camMovement;
 
-    [SerializeField] private float SensX; //camera X sensativity
-    [SerializeField] private float SensY; //camera Y sensativity
+    [SerializeField] private float SensX = 1; //camera X sensativity
+    [SerializeField] private float SensY = 1; //camera Y sensativity
 
-    [SerializeField] private float camMult = 0.01f;
+    [SerializeField] private float camMult = 0.1f;
 
     [SerializeField] private float xRotation; //rotation about the x axis (up - down
     [SerializeField] private float yRotation; //rotation about the y axis (right - left)
@@ -44,6 +44,9 @@ public class PlayerLook : MonoBehaviour
         xRotation -= camMovement.y * SensY * camMult;
 
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        Debug.Log(xRotation);
+        Debug.Log(yRotation);
     }
 
     //Functionality Methods
