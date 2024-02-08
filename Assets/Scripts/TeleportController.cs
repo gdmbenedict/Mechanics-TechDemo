@@ -15,7 +15,11 @@ public class TeleportController : MonoBehaviour
 
     private void Update()
     {
-        timer -= Time.deltaTime;
+        if (timer >= 0)
+        {
+            timer -= Time.deltaTime;
+        }
+        
 
         if (timer <= 0 && teleportRegistry.Count > 0)
         {
