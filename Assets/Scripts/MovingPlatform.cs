@@ -21,9 +21,21 @@ public class MovingPlatform : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         distCovered = Mathf.PingPong(Time.time, travelLength/speed);
         transform.position = Vector3.Lerp(startPos.position, endPos.position, distCovered/travelLength);
+    }
+
+    //Trigger Method to lock player to the platform
+    private void OnTriggerEnter(Collider other)
+    {
+        other.transform.SetParent(transform);
+    }
+
+    //Trigger Method to unlock player from the platform
+    private void OnTriggerExit(Collider other)
+    {
+        other.transform.SetParent(null);
     }
 }
