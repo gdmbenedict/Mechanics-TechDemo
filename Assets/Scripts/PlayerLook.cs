@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerLook : MonoBehaviour
 {
     [Header("Camera")]
-    [SerializeField] private Camera cam;
+    [SerializeField] private Transform camHolder;
     [SerializeField] private Vector2 camMovement;
 
     [SerializeField] private float SensX; //camera X sensativity
@@ -19,6 +19,7 @@ public class PlayerLook : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private GameManager gameManager;
+    [SerializeField] Transform orientation;
 
     //Method called on first frame
     private void Awake()
@@ -53,10 +54,10 @@ public class PlayerLook : MonoBehaviour
         if (!gameManager.isGamePaused())
         {
             //rotates camera 
-            cam.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+            camHolder.transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
 
             //rotates player
-            transform.rotation = Quaternion.Euler(0, yRotation, 0);
+            orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);
         }
     }
 }

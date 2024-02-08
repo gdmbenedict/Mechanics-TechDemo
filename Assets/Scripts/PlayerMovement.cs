@@ -16,6 +16,7 @@ public class PlayerMovement: MonoBehaviour
     [SerializeField] private float airMoveMult = 0.5f;
 
     [SerializeField] private Vector3 moveDirection;
+    [SerializeField] private Vector2 inputVector;
 
     [Header("Jumping")]
     [SerializeField] private float jumpForce = 10f;
@@ -30,6 +31,7 @@ public class PlayerMovement: MonoBehaviour
 
     [Header("References")]
     [SerializeField] private GameManager gameManager;
+    [SerializeField] Transform orientation;
 
     //called on first frame regardless of script being enabled
     private void Awake()
@@ -43,6 +45,7 @@ public class PlayerMovement: MonoBehaviour
      */
     private void Update()
     {
+        MoveDirection();
         ControlDrag();
         GroundCheck();
     }
@@ -61,13 +64,16 @@ public class PlayerMovement: MonoBehaviour
     /// This function is called on "Move" input in the "PlayerControls" Input Action. It updates the values of the Vector3 moveDirection
     /// </summary>
     /// <param name="movementValue">InputValue of the "Move" input action (extracted as Vector2)</param>
-    public void Move(InputAction.CallbackContext movementValue)
+    public void MoveInput(InputAction.CallbackContext movementValue)
     {
-        Vector2 movementVector = movementValue.ReadValue<Vector2>();
-        //Debug.Log(movementVector);
+        inputVector = movementValue.ReadValue<Vector2>();
+        Debug.Log(inputVector);   
+    }
 
+    private void MoveDirection()
+    {
         //transform.forward and transform.right modify the value to update with camera movement
-        moveDirection = transform.forward * movementVector.y + transform.right * movementVector.x;
+        moveDirection = orientation.forward * inputVector.y + orientation.right * inputVector.x;
     }
 
     public void Jump(InputAction.CallbackContext context)

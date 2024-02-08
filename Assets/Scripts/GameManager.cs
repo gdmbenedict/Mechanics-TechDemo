@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
 
     public void OnEscape(InputAction.CallbackContext context)
     {
-        Debug.Log("function called");
+        //Debug.Log("function called");
         Pause();
     }
 
