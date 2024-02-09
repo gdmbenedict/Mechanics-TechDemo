@@ -18,9 +18,13 @@ public class GameManager : MonoBehaviour
 
     [Header("Game States")]
     [SerializeField] private GameState gameState;
+    [SerializeField] private bool controls;
+    [SerializeField] private bool features;
 
     [Header("Menus")]
     [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private GameObject controlsMenu;
+    [SerializeField] private GameObject featuresMenu;
 
     [Header("Info")]
     [ReadOnly(true)] private int targetsTotal;
@@ -34,6 +38,11 @@ public class GameManager : MonoBehaviour
     {
         gameState = GameState.gamePlay;
         pauseMenu.SetActive(false);
+        controlsMenu.SetActive(false);
+        featuresMenu.SetActive(false);
+
+        controls = false;
+        features = false;
 
         //hiding cursor
         Cursor.lockState = CursorLockMode.Locked;
@@ -53,8 +62,19 @@ public class GameManager : MonoBehaviour
 
     public void OnEscape(InputAction.CallbackContext context)
     {
-        //Debug.Log("function called");
-        Pause();
+        if (controls)
+        {
+            ToggleControls();
+        }
+        else if (features)
+        {
+            ToggleFeatures();
+        }
+        else
+        {
+            //Debug.Log("function called");
+            Pause();
+        }
     }
 
     //Functionality Methods
@@ -72,7 +92,7 @@ public class GameManager : MonoBehaviour
 
             //Showing cursor
             Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = false;
+            Cursor.visible = true;
         }
         else
         {
@@ -83,6 +103,34 @@ public class GameManager : MonoBehaviour
             //Hiding cursor
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+    }
+
+    /// <summary>
+    /// Function that toggles the controls menu
+    /// </summary>
+    public void ToggleControls()
+    {
+        if (gameState == GameState.paused)
+        {
+            controls = !controls;
+
+            controlsMenu.SetActive(controls);
+            pauseMenu.SetActive(!controls);
+        }
+    }
+
+    /// <summary>
+    /// Function that toggles the features menu
+    /// </summary>
+    public void ToggleFeatures()
+    {
+        if (gameState == GameState.paused)
+        {
+            features = !features;
+
+            featuresMenu.SetActive(features);
+            pauseMenu.SetActive(!features);
         }
     }
 
