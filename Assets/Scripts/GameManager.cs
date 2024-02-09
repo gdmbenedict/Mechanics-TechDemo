@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,6 +22,13 @@ public class GameManager : MonoBehaviour
     [Header("Menus")]
     [SerializeField] private GameObject pauseMenu;
 
+    [Header("Info")]
+    [ReadOnly(true)] private int targetsTotal;
+    [ReadOnly(true)] private int targetsCollected;
+
+    [SerializeField] TextMeshProUGUI targetsText;
+
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -29,12 +38,15 @@ public class GameManager : MonoBehaviour
         //hiding cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        targetsTotal = 0;
+        targetsCollected = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        targetsText.text = targetsCollected.ToString() + "/" + targetsTotal.ToString() + " Targets Collected";
     }
 
     //Input Handling
@@ -82,8 +94,36 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
+    /// <summary>
+    /// Method that reloads the current scene.
+    /// </summary>
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    /// <summary>
+    /// Method that registers an instance of a target with the game manager.
+    /// </summary>
+    public void RegisterTarget()
+    {
+        targetsTotal++;
+    }
+
+    /// <summary>
+    /// Method that registers that a target was collected.
+    /// </summary>
+    public void CollectTarget()
+    {
+        targetsCollected++;
+    }
+
     //Accessor functions
 
+    /// <summary>
+    /// Method that returns if the game is paused
+    /// </summary>
+    /// <returns></returns>
     public bool isGamePaused(){
         if(gameState == GameState.paused)
         {
