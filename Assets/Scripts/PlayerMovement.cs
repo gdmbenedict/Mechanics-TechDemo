@@ -15,11 +15,14 @@ public class PlayerMovement: MonoBehaviour
     [SerializeField] private float moveMult = 10f;
     [SerializeField] private float airMoveMult = 0.5f;
 
-    [SerializeField] private Vector3 moveDirection;
+    [ReadOnly(true)] private Vector3 moveDirection;
+    [ReadOnly(true)] private Vector3 slopeMoveDirection;
+
     [SerializeField] private Vector2 inputVector;
 
     [Header("Jumping")]
-    [SerializeField] private float jumpForce = 10f;
+    //[SerializeField] private float jumpForce = 10f;
+    [SerializeField] private float jumpHeight = 4f;
 
     [Header("Physics")]
     [SerializeField] private Rigidbody rb;
@@ -27,7 +30,11 @@ public class PlayerMovement: MonoBehaviour
     [SerializeField] private float airDrag = 0f;
 
     [Header("Checks")]
-    [SerializeField] private bool isGrounded;
+    [ReadOnly(true)] public bool isGrounded;
+    [ReadOnly(true)] public bool onSlope;
+
+    //raycast for slope check
+    private RaycastHit slopeHit;
 
     [Header("References")]
     [SerializeField] private GameManager gameManager;
@@ -45,9 +52,13 @@ public class PlayerMovement: MonoBehaviour
      */
     private void Update()
     {
-        MoveDirection();
-        ControlDrag();
+        //checking floor
         GroundCheck();
+        SlopeCheck();
+
+        MoveDirection();
+        SlopeMoveDirection();
+        ControlDrag();
     }
 
     /*
@@ -76,11 +87,22 @@ public class PlayerMovement: MonoBehaviour
         moveDirection = orientation.forward * inputVector.y + orientation.right * inputVector.x;
     }
 
+    private void SlopeMoveDirection()
+    {
+        //calculates movement change over plane
+        slopeMoveDirection = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal);
+    }
+
     public void Jump(InputAction.CallbackContext context)
     {
         if (isGrounded && !gameManager.isGamePaused() && context.performed)
         {
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+            //reset Y velocity to fix small jump bug
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+            //rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+            float jumpVelocity = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
+            rb.AddForce(transform.up * jumpVelocity, ForceMode.VelocityChange);
         }
     }
 
@@ -91,9 +113,14 @@ public class PlayerMovement: MonoBehaviour
     /// </summary>
     private void MovePlayer()
     {
-        if (isGrounded)
+        //change how movement works based on environment
+        if (isGrounded && !onSlope)
         {
             rb.AddForce(moveDirection * moveSpeed * moveMult, ForceMode.Acceleration);
+        }
+        else if (isGrounded && onSlope)
+        {
+            rb.AddForce(slopeMoveDirection * moveSpeed * moveMult, ForceMode.Acceleration);
         }
         else
         {
@@ -114,12 +141,29 @@ public class PlayerMovement: MonoBehaviour
             rb.drag = airDrag;
         }
     }
+
     /// <summary>
     /// Method that checks if the player is  touching (or near enough) to the ground
     /// </summary>
     private void GroundCheck()
     {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight / 2 + 0.01f);
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight / 2 + 0.1f);
+    }
+
+    private void SlopeCheck()
+    {
+        //check for floor
+        if(Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight / 2 + 0.5f))
+        {
+            if(slopeHit.normal != Vector3.up)
+            {
+                onSlope = true;
+            }
+            else
+            {
+                onSlope = false;
+            }
+        }
     }
     
 }
