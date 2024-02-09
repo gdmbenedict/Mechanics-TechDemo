@@ -67,7 +67,7 @@ public class PlayerMovement: MonoBehaviour
     public void MoveInput(InputAction.CallbackContext movementValue)
     {
         inputVector = movementValue.ReadValue<Vector2>();
-        Debug.Log(inputVector);   
+        //Debug.Log(inputVector);   
     }
 
     private void MoveDirection()
@@ -78,7 +78,7 @@ public class PlayerMovement: MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (isGrounded && !gameManager.isGamePaused())
+        if (isGrounded && !gameManager.isGamePaused() && context.performed)
         {
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
