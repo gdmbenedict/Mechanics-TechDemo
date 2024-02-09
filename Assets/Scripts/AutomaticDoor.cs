@@ -29,12 +29,14 @@ public class AutomaticDoors : MonoBehaviour
         //opening door
         if (objectDetected)
         {
+            //lerping from current position to open
             positiveDoor.transform.position = Vector3.Lerp(positiveDoor.transform.position, positiveOpenPos.position, getPositiveIncrement());
             negativeDoor.transform.position = Vector3.Lerp(negativeDoor.transform.position, negativeOpenPos.position, getNegativeIncrement());
         }
         //closing door
         else
         {
+            //lerping from current position to closed
             positiveDoor.transform.position = Vector3.Lerp(positiveDoor.transform.position, positiveClosedPos.position, getPositiveIncrement());
             negativeDoor.transform.position = Vector3.Lerp(negativeDoor.transform.position, negativeClosedPos.position, getNegativeIncrement());
         }
@@ -52,11 +54,13 @@ public class AutomaticDoors : MonoBehaviour
         objectDetected = false;
     }
 
+    //gets the the increment for movement for the positive door
     private float getPositiveIncrement()
     {
         return Vector3.Distance(positiveClosedPos.position, positiveOpenPos.position) / doorOpenTime * Time.deltaTime;
     }
 
+    //gets the increment for movement for the negative door
     private float getNegativeIncrement()
     {
         return Vector3.Distance(negativeClosedPos.position, negativeOpenPos.position) / doorOpenTime * Time.deltaTime;
