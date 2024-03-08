@@ -20,8 +20,9 @@ public class BasicEnemy : MonoBehaviour
     //variables
     [SerializeField] private EnemyState currentState;
 
-    [Header("Navigation")]
+    [Header("Object References")]
     [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private AudioSource audioSource;
 
     [Header("Patroling")]
     [SerializeField] private List<Transform> patrolPoints;
@@ -38,6 +39,8 @@ public class BasicEnemy : MonoBehaviour
     [Header("Attacking")]
     [SerializeField] private float attackRange;
     [SerializeField] private LayerMask playerLayer;
+    [SerializeField] private float attackDuration;
+    [SerializeField] private float attackCountdown;
 
     [Header("Player Detection")]
     [SerializeField] private Transform detectionOrigin;
@@ -49,7 +52,6 @@ public class BasicEnemy : MonoBehaviour
     [SerializeField] private bool searching;
     [SerializeField] private float detectionCountdown;
     [SerializeField]private float searchCountdown;
-
 
     [Header("State Indication")]
     [SerializeField] private Material enemyMT;
@@ -114,7 +116,6 @@ public class BasicEnemy : MonoBehaviour
                 patrolIndex = 0;
             }
 
-            Debug.Log("Setting new destination");
             agent.SetDestination(patrolPoints[patrolIndex].position);
         }
 
@@ -150,7 +151,6 @@ public class BasicEnemy : MonoBehaviour
         //updates destination to last known position if they are not the same
         if (agent.destination != lastKnownPosition)
         {
-            Debug.Log(lastKnownPosition);
             agent.SetDestination(lastKnownPosition);
         }
 
@@ -203,7 +203,6 @@ public class BasicEnemy : MonoBehaviour
 
         if (agent.remainingDistance <= agent.stoppingDistance)
         {
-            Debug.Log("New search position");
             agent.SetDestination(GenerateSearchPosition());
         }
 
@@ -239,11 +238,40 @@ public class BasicEnemy : MonoBehaviour
     {
         //sets color to the attacking color
         enemyMT.color = attackingColor;
+
+        attackCountdown = attackDuration;
+
+        audioSource.Play();
+
+        agent.stoppingDistance = attackRange;
     }
 
     private void UpdateAttackingState()
     {
+        attackCountdown -= Time.deltaTime;
 
+        if (attackCountdown <= 0)
+        {
+            if (playerDetected)
+            {
+                float attackRange = this.attackRange + gameObject.GetComponent<CapsuleCollider>().radius;
+
+                //check if target is within attack radius
+                if (Physics.CheckSphere(gameObject.transform.position, attackRange, playerLayer))
+                {
+                    SwitchState(EnemyState.attacking);
+                }
+                else
+                {
+                    SwitchState(EnemyState.chasing);
+                }
+            }
+            else
+            {
+                SwitchState(EnemyState.searching);
+            }
+        }
+        
     }
 
     private void ExitAttackingState()
