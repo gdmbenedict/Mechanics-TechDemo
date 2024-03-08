@@ -256,11 +256,41 @@ public class BasicEnemy : MonoBehaviour
     private void EnterRetreatingState()
     {
         enemyMT.color = retreatingColor;
+
+        //sets NavMesh agent parameters
+        agent.speed = patrolSpeed;
+        agent.stoppingDistance = 0f;
+
+        if (patrolPoints.Count > 0)
+        {
+            //sets to first patrol point
+            patrolIndex = 0;
+        }
+
+        agent.SetDestination(patrolPoints[patrolIndex].position);
     }
 
     private void UpdateRetreatingState()
     {
+        if (agent.remainingDistance <= agent.stoppingDistance)
+        {
+            SwitchState(EnemyState.patrolling);
+        }
 
+        if (playerDetected)
+        {
+            float attackRange = this.attackRange + gameObject.GetComponent<CapsuleCollider>().radius;
+
+            //check if target is within attack radius
+            if (Physics.CheckSphere(gameObject.transform.position, attackRange, playerLayer))
+            {
+                SwitchState(EnemyState.attacking);
+            }
+            else
+            {
+                SwitchState(EnemyState.chasing);
+            }
+        }
     }
 
     private void ExitRetreatingState()
