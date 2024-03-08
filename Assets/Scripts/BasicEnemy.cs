@@ -26,16 +26,33 @@ public class BasicEnemy : MonoBehaviour
     [Header("Patroling")]
     [SerializeField] private List<Transform> patrolPoints;
     [SerializeField] private float patrolSpeed;
-    private Transform targetPoint;
     private int patrolIndex;
+
+    [Header("Chasing")]
+    [SerializeField] private float chaseSpeed;
+
+    [Header("Attacking")]
+    [SerializeField] private float attackRange;
+
+    [Header("Player Detection")]
+    [SerializeField] private Transform detectionOrigin;
+    [SerializeField] private Transform lastKnownPosition;
+    [SerializeField] private float detectionDuration;
+    [SerializeField] private float searchDuration;
+    [SerializeField] private float detectionDistance;
+    [SerializeField] private bool playerDetected;
+    [SerializeField] private bool searching;
+    [SerializeField] private float detectionCountdown;
+    [SerializeField]private float searchCountdown;
+
 
     [Header("State Indication")]
     [SerializeField] private Material enemyMT;
-    [SerializeField] private Color32 patrolling = new Color32(0, 128, 0, 255);
-    [SerializeField] private Color32 chasing = new Color32(255, 102, 0, 255);
-    [SerializeField] private Color32 searching = new Color32(255, 204, 0, 255);
-    [SerializeField] private Color32 attacking = new Color32(217, 33, 33, 255);
-    [SerializeField] private Color32 retreating = new Color32(0, 171, 240, 255);
+    [SerializeField] private Color32 patrollingColor = new Color32(0, 128, 0, 255);
+    [SerializeField] private Color32 chasingColor = new Color32(255, 102, 0, 255);
+    [SerializeField] private Color32 searchingColor = new Color32(255, 204, 0, 255);
+    [SerializeField] private Color32 attackingColor = new Color32(217, 33, 33, 255);
+    [SerializeField] private Color32 retreatingColor = new Color32(0, 171, 240, 255);
 
     //Called on first frame of the scene even if the game object is not active
     private void Awake()
@@ -64,16 +81,16 @@ public class BasicEnemy : MonoBehaviour
     private void EnterPatrollingState()
     {
         //sets color to the patrolling color
-        enemyMT.color = patrolling;
+        enemyMT.color = patrollingColor;
 
-        //sets the speed of the enemy to patrol speed
+        //sets NavMesh agent parameters
         agent.speed = patrolSpeed;
+        agent.stoppingDistance = 0f;
 
         if (patrolPoints.Count > 0)
         {
             //sets to first patrol point
             patrolIndex = 0;
-            targetPoint = patrolPoints[patrolIndex];
         }
     }
 
@@ -96,6 +113,11 @@ public class BasicEnemy : MonoBehaviour
         {
             agent.SetDestination(patrolPoints[patrolIndex].position);
         }
+
+        if (playerDetected)
+        {
+            SwitchState(EnemyState.chasing);
+        }
     }
 
     private void ExitPatrollingState()
@@ -107,12 +129,31 @@ public class BasicEnemy : MonoBehaviour
     private void EnterChasingState()
     {
         //sets color to the chasing color
-        enemyMT.color = chasing;
+        enemyMT.color = chasingColor;
+
+        //sets NavMesh agent parameters
+        agent.speed = chaseSpeed;
+        agent.stoppingDistance = attackRange;
     }
 
     private void UpdateChasingState()
     {
+        if (lastKnownPosition == null)
+        {
+            //update to retreating
+        }
 
+        //updates destination to last known position if they are not the same
+        if (agent.destination != lastKnownPosition.position)
+        {
+            agent.SetDestination(lastKnownPosition.position);
+        }
+
+        //arrives at target location
+        if ()
+        {
+
+        }
     }
 
     private void ExitChasingState()
@@ -124,7 +165,7 @@ public class BasicEnemy : MonoBehaviour
     private void EnterSearchingState()
     {
         //sets color to the chasing color
-        enemyMT.color = searching;
+        enemyMT.color = searchingColor;
     }
 
     private void UpdateSearchingState()
@@ -141,7 +182,7 @@ public class BasicEnemy : MonoBehaviour
     private void EnterAttackingState()
     {
         //sets color to the attacking color
-        enemyMT.color = attacking;
+        enemyMT.color = attackingColor;
     }
 
     private void UpdateAttackingState()
@@ -157,7 +198,7 @@ public class BasicEnemy : MonoBehaviour
     //retreating state
     private void EnterRetreatingState()
     {
-        enemyMT.color = retreating;
+        enemyMT.color = retreatingColor;
     }
 
     private void UpdateRetreatingState()
@@ -260,5 +301,55 @@ public class BasicEnemy : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Method that determines if the player is seen
+    /// </summary>
+    /// <param name="player">player object in detection collider</param>
+    public bool DetectPlayer(Transform player)
+    {
+        //get direction of player
+        Vector3 rayDirection = Vector3.Normalize(player.position - gameObject.transform.position);
 
+        RaycastHit hit;
+        Physics.Raycast(detectionOrigin.transform.position, rayDirection, out hit, detectionDistance);
+
+        //check that player is not obstructed
+        if (hit.transform.tag == "Player")
+        {
+            //register detection
+            playerDetected = true;
+            lastKnownPosition = player;
+            detectionCountdown = detectionDuration;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void UpdateDetection()
+    {
+        if (playerDetected)
+        {
+            detectionCountdown -= Time.deltaTime;
+            
+            if (detectionCountdown <= 0)
+            {
+                playerDetected = false;
+                searchCountdown = searchDuration;
+                searching = true;
+            }
+        }
+        else if (searching)
+        {
+            searchCountdown -= Time.deltaTime;
+
+            if (searchCountdown <= 0)
+            {
+                searching = false;
+            }
+        }
+
+    }
+
+    
 }

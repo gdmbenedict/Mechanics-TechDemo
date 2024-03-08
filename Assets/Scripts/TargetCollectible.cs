@@ -27,7 +27,7 @@ public class TargetCollectible : MonoBehaviour
     //function that collects collectable and destroys the object.
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<GameObject>().tag != "Enemy")
+        if (other.gameObject.tag != "Enemy")
         {
 
         }
