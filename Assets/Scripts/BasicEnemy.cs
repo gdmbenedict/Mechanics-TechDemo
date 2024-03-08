@@ -34,7 +34,6 @@ public class BasicEnemy : MonoBehaviour
     [Header("Searching")]
     [SerializeField] private float searchSpeed;
     [SerializeField] private float searchRadius;
-    [SerializeField] private Vector3 searchPos;
 
     [Header("Attacking")]
     [SerializeField] private float attackRange;
@@ -42,7 +41,7 @@ public class BasicEnemy : MonoBehaviour
 
     [Header("Player Detection")]
     [SerializeField] private Transform detectionOrigin;
-    [SerializeField] private Transform lastKnownPosition;
+    [SerializeField] private Vector3 lastKnownPosition;
     [SerializeField] private float detectionDuration;
     [SerializeField] private float searchDuration;
     [SerializeField] private float detectionDistance;
@@ -73,6 +72,7 @@ public class BasicEnemy : MonoBehaviour
         //setting up enemy state
         currentState = EnemyState.patrolling;
         EnterPatrollingState();
+
     }
 
     // Update is called once per frame
@@ -113,11 +113,8 @@ public class BasicEnemy : MonoBehaviour
             {
                 patrolIndex = 0;
             }
-        }
 
-        //checks if needs to start new path
-        if (!agent.hasPath || agent.pathStatus == NavMeshPathStatus.PathComplete)
-        {
+            Debug.Log("Setting new destination");
             agent.SetDestination(patrolPoints[patrolIndex].position);
         }
 
@@ -151,13 +148,14 @@ public class BasicEnemy : MonoBehaviour
         }
 
         //updates destination to last known position if they are not the same
-        if (agent.destination != lastKnownPosition.position)
+        if (agent.destination != lastKnownPosition)
         {
-            agent.SetDestination(lastKnownPosition.position);
+            Debug.Log(lastKnownPosition);
+            agent.SetDestination(lastKnownPosition);
         }
 
         //arrives at target location
-        if (agent.pathStatus == NavMeshPathStatus.PathComplete && Vector3.Magnitude(lastKnownPosition.position - transform.position) <= attackRange)
+        if (agent.pathStatus == NavMeshPathStatus.PathComplete && Vector3.Magnitude(lastKnownPosition - transform.position) <= attackRange)
         {
             float attackRange = this.attackRange + gameObject.GetComponent<CapsuleCollider>().radius;
 
@@ -192,20 +190,21 @@ public class BasicEnemy : MonoBehaviour
 
         //variables for search timer
         searchCountdown = searchDuration;
+        playerDetected = false;
         searching = true;
 
         //sets NavMesh agent parameters
         agent.speed = searchSpeed;
-        
+
     }
 
     private void UpdateSearchingState()
     {
-        //generate new search position
-        if (!agent.hasPath || agent.pathStatus == NavMeshPathStatus.PathComplete)
-        {    
-            GenerateSearchPosition();
-            agent.SetDestination(searchPos);
+
+        if (agent.remainingDistance <= agent.stoppingDistance)
+        {
+            Debug.Log("New search position");
+            agent.SetDestination(GenerateSearchPosition());
         }
 
         //searching times out
@@ -405,7 +404,7 @@ public class BasicEnemy : MonoBehaviour
         {
             //register detection
             playerDetected = true;
-            lastKnownPosition = player;
+            lastKnownPosition = player.position;
             detectionCountdown = detectionDuration;
             return true;
         }
@@ -442,11 +441,15 @@ public class BasicEnemy : MonoBehaviour
     /// <summary>
     /// Method that generates a new search position
     /// </summary>
-    private void GenerateSearchPosition()
+    private Vector3 GenerateSearchPosition()
     {
-        searchPos = lastKnownPosition.position;
+        Vector3 searchPos;
+
+        searchPos = lastKnownPosition;
         searchPos.x += Random.Range(-searchRadius, searchRadius);
         searchPos.z += Random.Range(-searchRadius, searchRadius);
+
+        return searchPos;
     }
     
 }
