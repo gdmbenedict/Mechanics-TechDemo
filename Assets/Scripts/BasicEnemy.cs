@@ -31,8 +31,14 @@ public class BasicEnemy : MonoBehaviour
     [Header("Chasing")]
     [SerializeField] private float chaseSpeed;
 
+    [Header("Searching")]
+    [SerializeField] private float searchSpeed;
+    [SerializeField] private float searchRadius;
+    [SerializeField] private Vector3 searchPos;
+
     [Header("Attacking")]
     [SerializeField] private float attackRange;
+    [SerializeField] private LayerMask playerLayer;
 
     [Header("Player Detection")]
     [SerializeField] private Transform detectionOrigin;
@@ -73,6 +79,7 @@ public class BasicEnemy : MonoBehaviour
     void Update()
     {
         UpdateState();
+        UpdateDetection();
     }
 
     //State changing section
@@ -150,15 +157,31 @@ public class BasicEnemy : MonoBehaviour
         }
 
         //arrives at target location
-        if ()
+        if (agent.pathStatus == NavMeshPathStatus.PathComplete && Vector3.Magnitude(lastKnownPosition.position - transform.position) <= attackRange)
         {
+            float attackRange = this.attackRange + gameObject.GetComponent<CapsuleCollider>().radius;
 
+            //check if target is within attack radius
+            if (Physics.CheckSphere(gameObject.transform.position, attackRange, playerLayer))
+            {
+                SwitchState(EnemyState.attacking);
+            }
+            //player not detected
+            else{
+                SwitchState(EnemyState.searching);
+            }
+        }
+
+        //player detection timed out
+        if (!playerDetected)
+        {
+            SwitchState(EnemyState.searching);
         }
     }
 
     private void ExitChasingState()
     {
-
+        agent.stoppingDistance = 0f; 
     }
 
     //searching state
@@ -166,11 +189,45 @@ public class BasicEnemy : MonoBehaviour
     {
         //sets color to the chasing color
         enemyMT.color = searchingColor;
+
+        //variables for search timer
+        searchCountdown = searchDuration;
+        searching = true;
+
+        //sets NavMesh agent parameters
+        agent.speed = searchSpeed;
+        
     }
 
     private void UpdateSearchingState()
     {
+        //generate new search position
+        if (!agent.hasPath || agent.pathStatus == NavMeshPathStatus.PathComplete)
+        {    
+            GenerateSearchPosition();
+            agent.SetDestination(searchPos);
+        }
 
+        //searching times out
+        if (!searching)
+        {
+            SwitchState(EnemyState.retreating);
+        }
+
+        if (playerDetected)
+        {
+            float attackRange = this.attackRange + gameObject.GetComponent<CapsuleCollider>().radius;
+
+            //check if target is within attack radius
+            if (Physics.CheckSphere(gameObject.transform.position, attackRange, playerLayer))
+            {
+                SwitchState(EnemyState.attacking);
+            }
+            else
+            {
+                SwitchState(EnemyState.chasing);
+            }
+        }
     }
 
     private void ExitSearchingState()
@@ -326,6 +383,9 @@ public class BasicEnemy : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Method that updates the detection bools of the enemy
+    /// </summary>
     private void UpdateDetection()
     {
         if (playerDetected)
@@ -335,8 +395,6 @@ public class BasicEnemy : MonoBehaviour
             if (detectionCountdown <= 0)
             {
                 playerDetected = false;
-                searchCountdown = searchDuration;
-                searching = true;
             }
         }
         else if (searching)
@@ -351,5 +409,14 @@ public class BasicEnemy : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Method that generates a new search position
+    /// </summary>
+    private void GenerateSearchPosition()
+    {
+        searchPos = lastKnownPosition.position;
+        searchPos.x += Random.Range(-searchRadius, searchRadius);
+        searchPos.z += Random.Range(-searchRadius, searchRadius);
+    }
     
 }
