@@ -21,6 +21,9 @@ public class Rocket : MonoBehaviour
     [SerializeField] private float soundStartDelay = 0.6f;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip rocketLoop;
+
+    [Header("Explosion")]
+    [SerializeField] private GameObject explosion;
     
 
     // Start is called before the first frame update
@@ -71,6 +74,9 @@ public class Rocket : MonoBehaviour
     {
         //get colliders in explosion radius
         hitColliders = Physics.OverlapSphere(explosionPoint.position, explosionRadius);
+
+        Debug.Log("Calling explosion Instantiation");
+        Instantiate(explosion, explosionPoint.position, explosionPoint.rotation);
 
         //step through affected objects
         foreach (Collider hitcol in hitColliders)
