@@ -16,6 +16,11 @@ public class Rocket : MonoBehaviour
     [SerializeField] private Transform explosionPoint;
 
     private Collider[] hitColliders;
+
+    [Header("Sounds")]
+    [SerializeField] private float soundStartDelay = 0.6f;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip rocketLoop;
     
 
     // Start is called before the first frame update
@@ -25,7 +30,10 @@ public class Rocket : MonoBehaviour
 
         //prefab considers wrong direction forward
         rb.AddForce(-gameObject.transform.forward * launchForce, ForceMode.Impulse);
-        
+
+        //start playing sound after a delay.
+        Invoke("PlayRocketLoop", soundStartDelay);
+
         //destroy the game object after 3 seconds
         Destroy(gameObject, 3f);
     }
@@ -33,6 +41,15 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Physics.Raycast(new Ray(gameObject.transform.position, rb.velocity * Time.deltaTime), out RaycastHit hit))
+        {
+            if (hit.collider.tag != "Player" && hit.collider.tag != "Rocket")
+            {
+                Debug.Log(hit.collider.gameObject.ToString());
+                Explode();
+            }
+        }
+
         //prefab considers wrong direction forward
         rb.AddForce(-gameObject.transform.forward * propulsionForce, ForceMode.Acceleration);
     }
@@ -66,5 +83,12 @@ public class Rocket : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    private void PlayRocketLoop()
+    {
+        audioSource.loop = true;
+        audioSource.clip = rocketLoop;
+        audioSource.Play();
     }
 }

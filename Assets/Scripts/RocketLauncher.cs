@@ -11,10 +11,15 @@ public class RocketLauncher : MonoBehaviour
     [SerializeField] private Transform launchPos;
     [ReadOnly(true)] private GameManager gameManager;
 
+    [Header("Sounds")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip launchSound;
+
     // Start is called before the first frame update
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        audioSource.clip = launchSound;
     }
 
     // Update is called once per frame
@@ -35,6 +40,7 @@ public class RocketLauncher : MonoBehaviour
         if (context.performed && !gameManager.isGamePaused())
         {
             Instantiate(rocketPrefab, launchPos.position, launchPos.rotation);
+            audioSource.Play();
         }
     }
 
