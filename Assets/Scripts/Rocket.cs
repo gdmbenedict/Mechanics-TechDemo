@@ -17,25 +17,26 @@ public class Rocket : MonoBehaviour
 
     private Collider[] hitColliders;
 
-    [Header("Sounds")]
-    [SerializeField] private float soundStartDelay = 0.6f;
+    [Header("Thruster")]
+    [SerializeField] private GameObject trailParticles;
+    [SerializeField] private float thrusterStartDelay = 0.6f;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip rocketLoop;
 
     [Header("Explosion")]
     [SerializeField] private GameObject explosion;
     
-
     // Start is called before the first frame update
     private void Awake()
     {
+        trailParticles.SetActive(false);
         rb = gameObject.GetComponent<Rigidbody>();
 
         //prefab considers wrong direction forward
         rb.AddForce(-gameObject.transform.forward * launchForce, ForceMode.Impulse);
 
         //start playing sound after a delay.
-        Invoke("PlayRocketLoop", soundStartDelay);
+        Invoke("StartThrusters", thrusterStartDelay);
 
         //destroy the game object after 3 seconds
         Destroy(gameObject, 3f);
@@ -91,8 +92,10 @@ public class Rocket : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void PlayRocketLoop()
+    private void StartThrusters()
     {
+        trailParticles.SetActive(true);
+
         audioSource.loop = true;
         audioSource.clip = rocketLoop;
         audioSource.Play();
