@@ -2541,7 +2541,7 @@ GameObject:
   - component: {fileID: 7486025119069305814}
   m_Layer: 0
   m_Name: Target
-  m_TagString: Untagged
+  m_TagString: Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2578,7 +2578,7 @@ GameObject:
   - component: {fileID: 3304854502266648641}
   m_Layer: 0
   m_Name: Body
-  m_TagString: Untagged
+  m_TagString: Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3866,3 +3866,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 0}
+  soundAfterDestruction: {fileID: 665180734281574479, guid: 51c8579fb110507468291cc2d8f94299,
+    type: 3}
+  pickupSound: {fileID: 8300000, guid: 80bb56e60e4f4de4fb082d3adca3324e, type: 3}

@@ -5,7 +5,9 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
-    [Header("Grenade Variables")]
+    [Header("Explosion Variables")]
+    [SerializeField] private LayerMask explosionLayerMask;
+    [SerializeField] private GameObject explosion;
     [SerializeField] private float launchForce = 15f;
     [SerializeField] private float propulsionForce = 3f;
     [SerializeField] private float explosionForce = 15f;
@@ -22,9 +24,7 @@ public class Rocket : MonoBehaviour
     [SerializeField] private float thrusterStartDelay = 0.6f;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip rocketLoop;
-
-    [Header("Explosion")]
-    [SerializeField] private GameObject explosion;
+    
     
     // Start is called before the first frame update
     private void Awake()
@@ -74,10 +74,7 @@ public class Rocket : MonoBehaviour
     private void Explode()
     {
         //get colliders in explosion radius
-        hitColliders = Physics.OverlapSphere(explosionPoint.position, explosionRadius);
-
-        Debug.Log("Calling explosion Instantiation");
-        Instantiate(explosion, explosionPoint.position, explosionPoint.rotation);
+        hitColliders = Physics.OverlapSphere(explosionPoint.position, explosionRadius, explosionLayerMask, QueryTriggerInteraction.Collide);
 
         //step through affected objects
         foreach (Collider hitcol in hitColliders)
@@ -86,12 +83,22 @@ public class Rocket : MonoBehaviour
             {
                 hitcol.GetComponent<Rigidbody>().AddExplosionForce(explosionForce, explosionPoint.position, explosionRadius, 1f, ForceMode.Impulse);
             }
-            
+
+            if (hitcol.tag == "Collectible")
+            {
+                hitcol.gameObject.GetComponent<TargetCollectible>().Collect();
+            }
         }
+
+        //Creates explosion effect at impact
+        Instantiate(explosion, explosionPoint.position, explosionPoint.rotation);
 
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Function that starts the particle effeects as well as the sound effects for the rocket thrusters
+    /// </summary>
     private void StartThrusters()
     {
         trailParticles.SetActive(true);

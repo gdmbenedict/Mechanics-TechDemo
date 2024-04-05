@@ -32,7 +32,7 @@ public class Explosion : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("Destroying Explosion");
+        //Debug.Log("Destroying Explosion");
         Destroy(gameObject);
     }
 }

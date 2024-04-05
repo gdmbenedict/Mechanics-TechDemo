@@ -7,6 +7,10 @@ public class TargetCollectible : MonoBehaviour
     [Header("Object References")]
     [SerializeField] private GameManager gameManager;
 
+    [Header("Sound Effect")]
+    [SerializeField] private GameObject soundAfterDestruction;
+    [SerializeField] private AudioClip pickupSound;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,16 +28,31 @@ public class TargetCollectible : MonoBehaviour
         }
     }
 
-    //function that collects collectable and destroys the object.
+    //function that call on a collider entering the collectible
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag != "Enemy")
         {
-
+            Collect();
         }
+        
+    }
+
+    /// <summary>
+    /// Method that collects the collectible
+    /// </summary>
+    public void Collect()
+    {
+        //plays the pickup sound
+        GameObject soundPlayer = Instantiate(soundAfterDestruction, gameObject.transform.position, gameObject.transform.rotation);
+        soundPlayer.GetComponent<SoundAfterDestruction>().PlaySound(pickupSound);
+
+        //informs game manager and self destructs
         gameManager.CollectTarget();
         Destroy(gameObject);
     }
+
+
 
 
 
