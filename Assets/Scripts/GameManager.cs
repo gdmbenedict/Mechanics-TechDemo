@@ -27,10 +27,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject featuresMenu;
 
     [Header("Info")]
+    [SerializeField] private GameObject enemyLegend;
+    [SerializeField] TextMeshProUGUI targetsText;
+
     [ReadOnly(true)] private int targetsTotal;
     [ReadOnly(true)] private int targetsCollected;
-
-    [SerializeField] TextMeshProUGUI targetsText;
+    
 
 
     // Start is called before the first frame update
@@ -40,6 +42,7 @@ public class GameManager : MonoBehaviour
         pauseMenu.SetActive(false);
         controlsMenu.SetActive(false);
         featuresMenu.SetActive(false);
+        enemyLegend.SetActive(true);
 
         controls = false;
         features = false;
@@ -86,6 +89,8 @@ public class GameManager : MonoBehaviour
     {
         if (gameState != GameState.paused)
         {
+            enemyLegend.SetActive(false);
+
             Time.timeScale = 0;
             pauseMenu.SetActive(true);
             gameState = GameState.paused;
@@ -96,6 +101,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            enemyLegend.SetActive(true);
+
             Time.timeScale = 1;
             pauseMenu.SetActive(false);
             gameState = GameState.gamePlay;
