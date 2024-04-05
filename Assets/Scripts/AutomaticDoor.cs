@@ -11,39 +11,65 @@ public class AutomaticDoors : MonoBehaviour
     [SerializeField] private Transform negativeClosedPos;
     [SerializeField] private Transform negativeOpenPos;
     [SerializeField] private float doorOpenTime =1f;
+    private Vector3 posVelocity = Vector3.zero;
+    private Vector3 negVelocity = Vector3.zero;
 
     [Header("Doors")]
     [SerializeField] private GameObject positiveDoor;
     [SerializeField] private GameObject negativeDoor;
 
     private bool objectDetected = false;
+    private bool lastDetectionState = false;
+
+    [Header("Sound")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip openAudioClip;
+    [SerializeField] private AudioClip closeAudioClip;
 
     // Start is called before the first frame update
     void Start()
     { 
+        
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         //opening door
         if (objectDetected)
         {
-            //lerping from current position to open
-            positiveDoor.transform.position = Vector3.Lerp(positiveDoor.transform.position, positiveOpenPos.position, getPositiveIncrement());
-            negativeDoor.transform.position = Vector3.Lerp(negativeDoor.transform.position, negativeOpenPos.position, getNegativeIncrement());
+            //determine if sound needs to be played
+            if (lastDetectionState != objectDetected)
+            {
+                audioSource.Stop();
+                audioSource.clip = openAudioClip;
+                audioSource.Play();
+            }
+
+            positiveDoor.transform.position = Vector3.SmoothDamp(positiveDoor.transform.position, positiveOpenPos.position, ref posVelocity, doorOpenTime);
+            negativeDoor.transform.position = Vector3.SmoothDamp(negativeDoor.transform.position, negativeOpenPos.position, ref negVelocity, doorOpenTime);
         }
         //closing door
         else
         {
+            //determine if sound needs to be played
+            if (lastDetectionState != objectDetected)
+            {
+                audioSource.Stop();
+                audioSource.clip = closeAudioClip;
+                audioSource.Play();
+            }
+
             //lerping from current position to closed
-            positiveDoor.transform.position = Vector3.Lerp(positiveDoor.transform.position, positiveClosedPos.position, getPositiveIncrement());
-            negativeDoor.transform.position = Vector3.Lerp(negativeDoor.transform.position, negativeClosedPos.position, getNegativeIncrement());
+            positiveDoor.transform.position = Vector3.SmoothDamp(positiveDoor.transform.position, positiveClosedPos.position, ref posVelocity, doorOpenTime);
+            negativeDoor.transform.position = Vector3.SmoothDamp(negativeDoor.transform.position, negativeClosedPos.position, ref negVelocity, doorOpenTime);
         }
+
+        lastDetectionState = objectDetected;
     }
 
     //Method to detect object arriving
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         objectDetected = true;
     }
@@ -52,17 +78,5 @@ public class AutomaticDoors : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         objectDetected = false;
-    }
-
-    //gets the the increment for movement for the positive door
-    private float getPositiveIncrement()
-    {
-        return Vector3.Distance(positiveClosedPos.position, positiveOpenPos.position) / doorOpenTime * Time.deltaTime;
-    }
-
-    //gets the increment for movement for the negative door
-    private float getNegativeIncrement()
-    {
-        return Vector3.Distance(negativeClosedPos.position, negativeOpenPos.position) / doorOpenTime * Time.deltaTime;
     }
 }
