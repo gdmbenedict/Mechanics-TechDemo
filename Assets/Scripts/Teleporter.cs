@@ -6,8 +6,12 @@ using UnityEngine.UIElements;
 
 public class Teleporter : MonoBehaviour
 {
+    [Header("Teleporter References")]
     [SerializeField] private Transform targetPosition;
     [SerializeField] private TeleportController teleportController;
+
+    [Header("Sounds")]
+    [SerializeField] private AudioSource targetAudioSource;
 
     public void OnTriggerEnter(Collider other)
     {
@@ -19,6 +23,9 @@ public class Teleporter : MonoBehaviour
             float heightOffset = other.gameObject.transform.position.y - gameObject.transform.position.y;
 
             other.gameObject.transform.position = targetPosition.position + new Vector3(0f, heightOffset, 0f);
+
+            targetAudioSource.Stop();
+            targetAudioSource.Play();
         }
         
         
